@@ -8,13 +8,13 @@ library(shinythemes)
 
 page_one <- tabPanel(
   "Introduction",
-  titlePanel(strong("CO2 emissions")),
+  titlePanel(strong("Emissions of Carbon Dixoide")),
   mainPanel(
     h4(strong("Primary Variables")),
-    h5(strong("co2_per_capita"), "This variable accounts for the the total contribution of the average citizen in each country 
-       in terms of the emission of carbon dioxide production."),
     h5(strong("co2_per_gdp"), "This variable accounts for the ratio of total carbon dioxide emission as accounted 
        from fuel combustion by per unit of GDP."),
+    h5(strong("co2_per_capita"), "This variable accounts for the the total contribution of the average citizen in each country 
+       in terms of the emission of carbon dioxide production."),
     
     h4(strong("Key Values")),
     h5("What is the average value of co2 per capita across all the countries in 2020?"),
@@ -27,9 +27,10 @@ page_one <- tabPanel(
     tableOutput("table4"),
   )
 )
+
 page_two <- tabPanel(
-  "Interactive Scatterplot",
-  titlePanel(strong("Scatterplot")),
+  "Interactive Visualization - Scatterplot",
+  titlePanel(strong("Visualization: Scatterplot")),
   sidebarLayout(
     sidebarPanel(
       uiOutput("chooseCountry"),
@@ -37,7 +38,7 @@ page_two <- tabPanel(
       uiOutput("chooseYVariable")
     ),
     mainPanel(
-      h2("Scatterplot for annual total production-based emissions of co2"),
+      h2("Scatterplot of CO2 per GDP and per capita from 1970 - 2020"),
       plotlyOutput("co2_scatterplot"),
       h5("The scatter plot presented above engages in comparing CO2 emissions by GDP as 
          well as by capita over the course of a fifty year time period across multiple countries 

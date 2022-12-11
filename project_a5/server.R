@@ -45,13 +45,13 @@ fifty_year_difference <- by_capita %>%
 
 shinyServer(function(input, output) {
   output$chooseCountry <- renderUI({
-    selectInput("Country", "Choose a Country", choices = unique(fifty_year_difference$country))
+    selectInput("Country", "Select a Country:", choices = unique(fifty_year_difference$country))
   })
   output$chooseXVariable  <- renderUI({
-    selectizeInput("x", "Select the x variable:", choices = c("gdp", "year"), selected = "year")
+    selectizeInput("x", "Choose the x variable of your choice:", choices = c("gdp", "year"), selected = "year")
   })
   output$chooseYVariable <- renderUI({
-    selectizeInput('y', 'Select the y variable', choices = c("co2_per_capita", "co2_per_gdp"), selected = "CO2 emissions per capita")
+    selectizeInput("y", "Choose the y variable of your choice:", choices = c("co2_per_gdp", "co2_per_capita"), selected = "CO2 emissions per gdp")
   })
   
   scatterplot <- reactive({
@@ -63,7 +63,7 @@ shinyServer(function(input, output) {
       labs(
         x = input$x,
         y = input$y,
-        title = "CO2 per capita and per GDP from 1970 - 2020")
+        title = "CO2 per GDP and per capita from 1970 - 2020")
   })
   
   output$co2_scatterplot <- renderPlotly({
