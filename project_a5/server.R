@@ -6,78 +6,79 @@ library(tidyr)
 library(tidyverse)
 library(shinythemes)
 
+#-----------------# 
 emissions_co2 <- read.csv("https://raw.githubusercontent.com/owid/co2-data/master/owid-co2-data.csv")
-emissions_co2 <- na.omit(emissions_co2)
-# View(emissions_co2)
+by_capita<- emissions_co2 %>% 
+  select(country, year, gdp, co2_per_capita, co2_per_gdp)
 
-by_capita <- emissions_co2 %>% 
-  select(year, country, co2_per_capita, gdp, co2_per_gdp)
-
-
-#------Data Summary Values---------------------# 
-# Which country had the highest CO2 per gdp value in the year 2018?
-CO2_gdp_highest <- by_capita %>% 
-  filter(year == 2018) %>% 
-  filter(co2_per_gdp == max(co2_per_gdp, na.rm = TRUE)) %>% 
-  select(country)
-
-# What is the mean of the CO2_per_capita variable across all the countries in 2018?
+# What is the average value of co2 per capita across all the countries in 2020?
 mean_val <- by_capita %>% 
-  filter(year == 2018) %>% 
+  filter(year == 2020) %>% 
   summarize(avg_per_capita_CO2 = mean(co2_per_capita, na.rm = TRUE)) %>% 
   select(avg_per_capita_CO2)
 
-# What is the variance in CO2 per capita over the past year (2017-2018) of the dataset?
+# Which country had the highest CO2 per capita value in the year 2020?
+CO2_capita_highest <- by_capita %>% 
+  filter(year == 2020) %>% 
+  filter(co2_per_capita == max(co2_per_capita, na.rm = TRUE)) %>% 
+  select(country)
+
+# Which country had the lowest CO2 per capita value in the year 2020?
+CO2_capita_lowest <- by_capita %>% 
+  filter(year == 2020) %>% 
+  filter(co2_per_capita == min(co2_per_capita, na.rm = TRUE)) %>% 
+  select(country)
+
+# What is the variance in CO2 per capita over the 2019-2020 years in the dataset?
 C02_capita_variance <- by_capita %>% 
-  filter(year %in% (2017:2018)) %>% 
+  filter(year %in% (2019:2020)) %>% 
   group_by(year) %>% 
   summarize(CO2_capita_average = mean(co2_per_capita, na.rm = TRUE)) %>% 
   mutate(variance = CO2_capita_average - lag(CO2_capita_average)) %>% 
   select(variance) %>% 
   drop_na()
-#-----------------------------------------------# 
 
-
-#-----------------------------------------------# 
-thirty_year_difference <- by_capita %>% 
-  filter(year %in% (1990:2018)) %>% 
+#------------------------# 
+fifty_year_difference <- by_capita %>% 
+  filter(year %in% (1970:2020)) %>% 
   drop_na() 
 
 shinyServer(function(input, output) {
-  output$choosecountry <- renderUI({
-    selectInput("Country", "Select a Country", choices = unique(thirty_year_difference$country))
+  output$chooseCountry <- renderUI({
+    selectInput("Country", "Choose a Country", choices = unique(fifty_year_difference$country))
   })
-  output$choosexvariable  <- renderUI({
-    selectizeInput("x", "Determine the x variable of choice:", choices = c("gdp", "year"), selected = "year")
+  output$chooseXVariable  <- renderUI({
+    selectizeInput("x", "Select the x variable:", choices = c("gdp", "year"), selected = "year")
   })
-  output$chooseyvariable <- renderUI({
-    selectizeInput("y", "Determine the y variable of choice", choices = c("co2_per_capita", "co2_per_gdp"), selected = "CO2 emissions per capita")
+  output$chooseYVariable <- renderUI({
+    selectizeInput('y', 'Select the y variable', choices = c("co2_per_capita", "co2_per_gdp"), selected = "CO2 emissions per capita")
   })
   
-  scatter_plot <- reactive({
-    country_plot <- thirty_year_difference %>% 
-      filter(country %in% input$country)
+  scatterplot <- reactive({
+    countryPlot <- fifty_year_difference %>% 
+      filter(country %in% input$Country)
     
-    scatterplot <- ggplot(country_plot, aes_string(x =input$x, y = input$y)) +
+    scatter_plot <- ggplot(countryPlot, aes_string(x =input$x, y = input$y)) +
       geom_point() +
       labs(
         x = input$x,
         y = input$y,
-        title = "CO2 per capita and per GDP from 1990 - 2018")
+        title = "CO2 per capita and per GDP from 1970 - 2020")
   })
   
-  output$scatter_plot_co2 <- renderPlotly({
-    scatter_plot()
+  output$co2_scatterplot <- renderPlotly({
+    scatterplot()
   })
-  output$table_one <- renderTable({
-    table_one <- mean_val
+  output$table1 <- renderTable({
+    table1 <- mean_val
   })
-  output$table_two <- renderTable({
-    table_two <- CO2_gdp_highest
+  output$table2 <- renderTable({
+    table2 <- CO2_capita_lowest
   })
-  output$table_three <- renderTable({
-    table_three <- C02_capita_variance
+  output$table3 <- renderTable({
+    table3 <- CO2_capita_highest
+  })
+  output$table4 <- renderTable({
+    table4 <- C02_capita_variance 
   })
 })
-#-----------------------------------------------# 
-
